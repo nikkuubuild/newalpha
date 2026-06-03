@@ -151,9 +151,9 @@ body {
 .banner-slide img,
 .banner-slide video {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    object-position: center;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: #0a0015;
     border-radius: 12px;
     border: 1px solid var(--accent-gold);
     box-shadow: 0 8px 25px rgba(0,0,0,0.7);
