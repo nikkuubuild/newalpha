@@ -348,19 +348,44 @@
             ]
         };
 
-        function getCmsData() {
+        function getCmsDataLocal() {
             try {
                 var stored = localStorage.getItem(CMS_KEY);
-                if (stored) {
-                    var parsed = JSON.parse(stored);
-                    return Object.assign({}, DEFAULT_DATA, parsed);
-                }
+                if (stored) return Object.assign({}, DEFAULT_DATA, JSON.parse(stored));
             } catch(e) {}
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
 
-        function saveCmsData(data) {
-            localStorage.setItem(CMS_KEY, JSON.stringify(data));
+        // Try API (Vercel+Redis), fall back to localStorage (local dev)
+        function getCmsDataAsync(callback) {
+            fetch('/api/data').then(function(r) {
+                if (!r.ok) throw new Error('API error');
+                return r.json();
+            }).then(function(d) {
+                callback(Object.assign({}, DEFAULT_DATA, d));
+            }).catch(function() {
+                callback(getCmsDataLocal());
+            });
+        }
+
+        function saveCmsData(data, callback) {
+            // Try API first
+            fetch('/api/data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ auth: 'admin123', newData: data })
+            }).then(function(r) {
+                if (!r.ok) throw new Error('API error');
+                return r.json();
+            }).then(function() {
+                // Also save to localStorage as cache
+                try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
+                if (callback) callback(true);
+            }).catch(function() {
+                // Fallback: save to localStorage only
+                try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
+                if (callback) callback(true);
+            });
         }
 
         // ─── GLOBAL STATE ───
@@ -413,15 +438,18 @@
                 sliderAssets: Array.from(document.querySelectorAll('.banner-slide img, .banner-slide video')).map(function(el) { return { type: el.tagName === 'VIDEO' ? 'video' : 'image', url: el.getAttribute('src') }; }),
                 features: Array.from(document.querySelectorAll('.feature-card')).map(function(c) { return { icon: c.querySelector('.feature-icon').textContent.trim(), title: c.querySelector('h3').textContent.trim(), desc: c.querySelector('p').textContent.trim() }; })
             };
-            saveCmsData(newData);
-            b.textContent = 'PUBLISHED!'; s.textContent = 'UPDATED';
-            setTimeout(function() { b.textContent = 'PUBLISH CHANGES'; s.textContent = '● DRAFT MODE'; }, 3000);
+            saveCmsData(newData, function() {
+                b.textContent = 'PUBLISHED!'; s.textContent = 'UPDATED';
+                setTimeout(function() { b.textContent = 'PUBLISH CHANGES'; s.textContent = '● DRAFT MODE'; }, 3000);
+            });
         }
         function exitEditor() { if (confirm("Discard changes?")) location.reload(); }
 
         // ─── DYNAMIC CONTENT LOADER (reads from localStorage) ───
         function initDynamicContent() {
-            var d = getCmsData();
+            getCmsDataAsync(function(d) { applyContent(d); });
+        }
+        function applyContent(d) {
 
             // Marquee
             document.querySelectorAll('.marquee-text').forEach(function(el) { el.textContent = d.marqueeText; });

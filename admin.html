@@ -203,20 +203,40 @@
             ]
         };
 
-        function getCmsData() {
+        function getCmsDataLocal() {
             try {
                 var stored = localStorage.getItem(CMS_KEY);
-                if (stored) {
-                    var parsed = JSON.parse(stored);
-                    // Merge with defaults so new fields are always present
-                    return Object.assign({}, DEFAULT_DATA, parsed);
-                }
+                if (stored) return Object.assign({}, DEFAULT_DATA, JSON.parse(stored));
             } catch(e) {}
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
 
-        function saveCmsData(data) {
-            localStorage.setItem(CMS_KEY, JSON.stringify(data));
+        function getCmsDataAsync(callback) {
+            fetch('/api/data').then(function(r) {
+                if (!r.ok) throw new Error('API error');
+                return r.json();
+            }).then(function(d) {
+                callback(Object.assign({}, DEFAULT_DATA, d));
+            }).catch(function() {
+                callback(getCmsDataLocal());
+            });
+        }
+
+        function saveCmsData(data, callback) {
+            fetch('/api/data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ auth: 'admin123', newData: data })
+            }).then(function(r) {
+                if (!r.ok) throw new Error('API error');
+                return r.json();
+            }).then(function() {
+                try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
+                if (callback) callback(true);
+            }).catch(function() {
+                try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
+                if (callback) callback(true);
+            });
         }
 
         let db = null;
@@ -232,7 +252,8 @@
         }
 
         function loadDashboard() {
-            db = getCmsData();
+            getCmsDataAsync(function(data) {
+            db = data;
 
             // Marquee
             document.getElementById('marqueeCurrent').textContent = "CURRENT: " + db.marqueeText;
@@ -280,6 +301,7 @@
             // Features
             document.getElementById('featureList').innerHTML = "";
             db.features.forEach(function(f) { addFeature(f.icon, f.title, f.desc); });
+            });
         }
 
         function addContact(val) {
@@ -460,14 +482,16 @@
                     return { icon: inputs[0].value, title: inputs[1].value, desc: inputs[2].value };
                 })
             };
-            try {
-                saveCmsData(newData);
-                toast.style.background = '#25d366'; toast.textContent = 'SITE UPDATED! Refresh frontend to see changes.'; toast.style.display = 'block';
-                loadDashboard();
-            } catch(e) {
-                toast.style.background = '#ff6b6b'; toast.textContent = 'SAVE FAILED: Storage full. Reduce image sizes or use URLs instead.'; toast.style.display = 'block';
-            }
-            setTimeout(function() { toast.style.display = 'none'; }, 5000);
+            toast.style.background = '#f0a500'; toast.textContent = 'SAVING...'; toast.style.display = 'block';
+            saveCmsData(newData, function(success) {
+                if (success) {
+                    toast.style.background = '#25d366'; toast.textContent = 'SITE UPDATED! Changes are live.';
+                    loadDashboard();
+                } else {
+                    toast.style.background = '#ff6b6b'; toast.textContent = 'SAVE FAILED: Storage full. Reduce image sizes or use URLs instead.';
+                }
+                setTimeout(function() { toast.style.display = 'none'; }, 5000);
+            });
         }
     </script>
 </body>

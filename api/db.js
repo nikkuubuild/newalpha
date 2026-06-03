@@ -1,4 +1,8 @@
-// Default data structure
+// Upstash Redis via REST API (no npm packages needed)
+const REDIS_URL = process.env.KV_REST_API_URL;
+const REDIS_TOKEN = process.env.KV_REST_API_TOKEN;
+const CACHE_KEY = 'alpha_cms_data';
+
 const defaultData = {
     marqueeText: "24 HOUR SERVICE | 24 HOUR WITHDRAWAL | 24 HOUR REFILL 🔥 24/7 INSTANT WITHDRAWALS • 🏆 INDIA'S MOST TRUSTED GAMING PLATFORM • 🎰 EXCLUSIVE CASINO BONUSES • 👑 JOIN THE ELITE COMMUNITY NOW!",
     contactNumbers: ['8651381149', '7542943418', '8235817872', '9472194303'],
@@ -30,24 +34,62 @@ const defaultData = {
     ]
 };
 
-let memoryDb = null;
-
-export async function getData() {
-    if (!memoryDb) {
-        memoryDb = JSON.parse(JSON.stringify(defaultData));
-    }
-    return memoryDb;
-}
-
-export async function updateData(newData) {
-    // Merge instead of replace so partial saves don't wipe fields
-    if (!memoryDb) {
-        memoryDb = JSON.parse(JSON.stringify(defaultData));
-    }
-    Object.keys(newData).forEach(key => {
-        if (newData[key] !== undefined && newData[key] !== null) {
-            memoryDb[key] = newData[key];
-        }
+async function redisGet(key) {
+    const res = await fetch(REDIS_URL + '/get/' + key, {
+        headers: { Authorization: 'Bearer ' + REDIS_TOKEN }
     });
-    return memoryDb;
+    const json = await res.json();
+    return json.result;
 }
+
+async function redisSet(key, value) {
+    await fetch(REDIS_URL + '/set/' + key, {
+        method: 'POST',
+        headers: {
+            Authorization: 'Bearer ' + REDIS_TOKEN,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([key, JSON.stringify(value)])
+    });
+}
+
+module.exports.getData = async function () {
+    try {
+        const stored = await redisGet(CACHE_KEY);
+        if (stored) {
+            var parsed = typeof stored === 'string' ? JSON.parse(stored) : stored;
+            return Object.assign({}, defaultData, parsed);
+        }
+    } catch (e) {
+        console.error('Redis GET error:', e);
+    }
+    return JSON.parse(JSON.stringify(defaultData));
+};
+
+module.exports.updateData = async function (newData) {
+    try {
+        // Get existing data first
+        var existing = JSON.parse(JSON.stringify(defaultData));
+        try {
+            var stored = await redisGet(CACHE_KEY);
+            if (stored) {
+                var parsed = typeof stored === 'string' ? JSON.parse(stored) : stored;
+                existing = Object.assign({}, defaultData, parsed);
+            }
+        } catch (e) {}
+
+        // Merge new data
+        Object.keys(newData).forEach(function (key) {
+            if (newData[key] !== undefined && newData[key] !== null) {
+                existing[key] = newData[key];
+            }
+        });
+
+        // Save to Redis
+        await redisSet(CACHE_KEY, existing);
+        return existing;
+    } catch (e) {
+        console.error('Redis SET error:', e);
+        throw e;
+    }
+};
