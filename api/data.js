@@ -27,7 +27,8 @@ module.exports = async function handler(req, res) {
             const updated = await updateData(newData);
             return res.status(200).json({ success: true, data: updated });
         } catch (e) {
-            return res.status(500).json({ error: 'Failed to save data' });
+            console.error('Save error:', e);
+            return res.status(500).json({ error: 'Failed to save data', detail: e.message });
         }
     }
 

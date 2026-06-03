@@ -43,14 +43,16 @@ async function redisGet(key) {
 }
 
 async function redisSet(key, value) {
-    await fetch(REDIS_URL + '/set/' + key, {
+    const res = await fetch(REDIS_URL, {
         method: 'POST',
         headers: {
             Authorization: 'Bearer ' + REDIS_TOKEN,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify([key, JSON.stringify(value)])
+        body: JSON.stringify(["SET", key, JSON.stringify(value)])
     });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
 }
 
 module.exports.getData = async function () {

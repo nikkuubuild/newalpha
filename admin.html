@@ -228,12 +228,14 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ auth: 'admin123', newData: data })
             }).then(function(r) {
-                if (!r.ok) throw new Error('API error');
+                if (!r.ok) return r.json().then(function(j) { throw new Error(j.detail || j.error || 'API error'); });
                 return r.json();
-            }).then(function() {
+            }).then(function(result) {
+                console.log('Saved to API:', result);
                 try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
                 if (callback) callback(true);
-            }).catch(function() {
+            }).catch(function(err) {
+                console.error('API save failed, using localStorage fallback:', err);
                 try { localStorage.setItem(CMS_KEY, JSON.stringify(data)); } catch(e) {}
                 if (callback) callback(true);
             });
@@ -241,9 +243,18 @@
 
         let db = null;
 
+        // Auto-login if session is active
+        (function() {
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                setTimeout(function() { loadDashboard(); }, 0);
+            }
+        })();
+
         function checkLogin() {
             var input = document.getElementById('adminPass').value;
             if (input === 'admin123') {
+                sessionStorage.setItem('admin_logged_in', 'true');
                 document.getElementById('loginOverlay').style.display = 'none';
                 loadDashboard();
             } else {
