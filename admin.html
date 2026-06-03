@@ -141,14 +141,27 @@
 
         <!-- Live Stats -->
         <div class="admin-card">
-            <h2>Activity Counters (Starting Values)</h2>
+            <h2>Live Stats (Time-Based Engine)</h2>
+            <p style="color:var(--text-dim); font-size:0.75rem; margin-bottom:15px">Stats grow automatically throughout the day based on IST time. Set the daily target and withdrawal percentage.</p>
             <div class="form-group">
-                <label>Daily Deposit Starting Value</label>
+                <label>Daily Deposit Target (amount by end of day)</label>
+                <div id="depositTargetCurrent" class="current-val">Loading...</div>
+                <input type="number" id="dailyDepositTargetInput" placeholder="e.g. 50000000 for 5 crore">
+            </div>
+            <div class="form-group">
+                <label>Withdrawal % of Deposits (e.g. 90 means 90% of deposit amount)</label>
+                <div id="withdrawPctCurrent" class="current-val">Loading...</div>
+                <input type="number" id="dailyWithdrawPercentInput" placeholder="e.g. 90" min="1" max="100">
+            </div>
+            <hr class="section-divider">
+            <p style="color:var(--text-dim); font-size:0.7rem; margin-bottom:10px">Legacy starting values (still used as fallback)</p>
+            <div class="form-group">
+                <label>Deposit Starting Value</label>
                 <div id="depositCurrent" class="current-val">Loading...</div>
                 <input type="number" id="startDepositInput">
             </div>
             <div class="form-group">
-                <label>Daily Withdrawal Starting Value</label>
+                <label>Withdrawal Starting Value</label>
                 <div id="withdrawCurrent" class="current-val">Loading...</div>
                 <input type="number" id="startWithdrawInput">
             </div>
@@ -239,6 +252,8 @@
             countryCode: '91',
             startDeposit: 1000000,
             startWithdraw: 500000,
+            dailyDepositTarget: 50000000,
+            dailyWithdrawPercent: 90,
             logoUrl: 'assets/images/logo.png',
             faviconUrl: 'assets/images/logo.png',
             headerCtaText: 'GET PREMIUM ID',
@@ -339,7 +354,15 @@
             document.getElementById('whatsappFabCurrent').textContent = "CURRENT: " + (db.whatsappFabNumber || db.emergencyNumber);
             document.getElementById('whatsappFabInput').value = db.whatsappFabNumber || db.emergencyNumber;
 
-            // Stats
+            // Stats - Time-based engine
+            var depTarget = db.dailyDepositTarget || 50000000;
+            var witPct = db.dailyWithdrawPercent || 90;
+            document.getElementById('depositTargetCurrent').textContent = "CURRENT: ₹ " + Number(depTarget).toLocaleString('en-IN') + " (" + (depTarget / 10000000).toFixed(1) + " Cr)";
+            document.getElementById('dailyDepositTargetInput').value = depTarget;
+            document.getElementById('withdrawPctCurrent').textContent = "CURRENT: " + witPct + "%";
+            document.getElementById('dailyWithdrawPercentInput').value = witPct;
+
+            // Stats - Legacy
             document.getElementById('depositCurrent').textContent = "CURRENT: ₹ " + Number(db.startDeposit).toLocaleString('en-IN');
             document.getElementById('startDepositInput').value = db.startDeposit;
             document.getElementById('withdrawCurrent').textContent = "CURRENT: ₹ " + Number(db.startWithdraw).toLocaleString('en-IN');
@@ -582,6 +605,8 @@
                 whatsappFabNumber: document.getElementById('whatsappFabInput').value,
                 startDeposit: parseInt(document.getElementById('startDepositInput').value) || 1000000,
                 startWithdraw: parseInt(document.getElementById('startWithdrawInput').value) || 500000,
+                dailyDepositTarget: parseInt(document.getElementById('dailyDepositTargetInput').value) || 50000000,
+                dailyWithdrawPercent: parseInt(document.getElementById('dailyWithdrawPercentInput').value) || 90,
                 logoUrl: document.getElementById('logoInput').value,
                 faviconUrl: document.getElementById('faviconInput').value,
                 headerCtaText: document.getElementById('ctaInput').value,

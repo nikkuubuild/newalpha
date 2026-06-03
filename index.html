@@ -317,6 +317,8 @@
             countryCode: '91',
             startDeposit: 1000000,
             startWithdraw: 500000,
+            dailyDepositTarget: 50000000,
+            dailyWithdrawPercent: 90,
             logoUrl: 'assets/images/logo.png',
             faviconUrl: 'assets/images/logo.png',
             headerCtaText: 'GET PREMIUM ID',
@@ -385,8 +387,10 @@
         // ─── GLOBAL STATE ───
         var NUMBERS = ['8651381149', '7542943418', '8235817872', '9472194303'];
         var COUNTRY = '91';
-        var dep = 1000000;
-        var wit = 500000;
+        var dep = 0;
+        var wit = 0;
+        var dailyDepTarget = 50000000;
+        var dailyWitPct = 90;
 
         // ─── VISUAL EDITOR LOGIC (CANVA STYLE) ───
         var isAdmin = false;
@@ -512,9 +516,12 @@
             var wfab = document.getElementById('whatsappFab');
             if (wfab) wfab.href = 'https://wa.me/' + d.countryCode + (d.whatsappFabNumber || d.emergencyNumber);
 
-            // Live Stats starting values
-            dep = d.startDeposit;
-            wit = d.startWithdraw;
+            // Live Stats - IST time-based
+            dailyDepTarget = d.dailyDepositTarget || 50000000;
+            dailyWitPct = d.dailyWithdrawPercent || 90;
+            var istBase = calcISTProgress();
+            dep = istBase.dep;
+            wit = istBase.wit;
             updateStatsDisplay();
         }
         initDynamicContent();
@@ -548,6 +555,44 @@
         }
         function showExhausted() { document.getElementById('modalTitle').textContent = 'Agents Busy'; document.getElementById('overlay').classList.add('show'); }
         document.getElementById('overlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        // ─── IST TIME-BASED STATS CALCULATOR ───
+        // Returns deposit & withdrawal amounts based on current IST time of day
+        // Uses a realistic curve: slow at night, peaks during evening hours
+        function calcISTProgress() {
+            var now = new Date();
+            // Convert to IST (UTC+5:30)
+            var utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            var ist = new Date(utc + 5.5 * 3600000);
+            var hour = ist.getHours();
+            var min = ist.getMinutes();
+            var totalMin = hour * 60 + min; // 0-1439
+
+            // Activity curve weights per hour (0-23), heavier during peak gaming hours
+            var weights = [1,0.5,0.3,0.2,0.2,0.3,0.8,1.5,2.5,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,8,7,5,3];
+            // Cumulative progress at each hour boundary
+            var cumul = [0];
+            var totalWeight = 0;
+            for (var i = 0; i < 24; i++) { totalWeight += weights[i]; cumul.push(totalWeight); }
+
+            // Interpolate current progress (0 to 1)
+            var hourNow = Math.floor(totalMin / 60);
+            var fracHour = (totalMin % 60) / 60;
+            var progressSoFar = cumul[hourNow] + weights[hourNow] * fracHour;
+            var progress = progressSoFar / totalWeight; // 0 to ~1
+
+            // Add daily seed from date so each day is slightly different
+            var daySeed = ist.getFullYear() * 10000 + (ist.getMonth()+1) * 100 + ist.getDate();
+            var rng = function(s) { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+            var variance = rng(daySeed); // 0-1
+            // Daily target varies between 60%-100% of configured target
+            var todayTarget = dailyDepTarget * (0.6 + variance * 0.4);
+
+            var depAmount = Math.floor(todayTarget * progress);
+            var witAmount = Math.floor(depAmount * (dailyWitPct / 100) * (0.85 + rng(daySeed + 1) * 0.15));
+
+            return { dep: depAmount, wit: witAmount };
+        }
 
         // ─── STATS & LIVE ACTIVITY ENGINE ───
         var txnCount = 3892;
@@ -590,8 +635,13 @@
         function tickStats() {
             var prevDep = dep;
             var prevWit = wit;
-            dep += Math.floor(Math.random() * 2700) + 800;
-            wit += Math.floor(Math.random() * 1800) + 500;
+            // Recalculate from IST time so it stays in sync
+            var base = calcISTProgress();
+            // Only go forward, never backward; add small random jitter on top
+            if (base.dep > dep) dep = base.dep;
+            if (base.wit > wit) wit = base.wit;
+            dep += Math.floor(Math.random() * 1500) + 300;
+            wit += Math.floor(Math.random() * 1000) + 200;
 
             // Smooth count animation
             animateCount(document.getElementById('totalDeposit'), prevDep, dep, 800);
