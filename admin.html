@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlphaXchng - Admin Dashboard Pro</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         body { background: #080310; }
@@ -101,6 +102,22 @@
                     <span class="or-text">OR</span>
                     <button class="upload-btn" onclick="document.getElementById('logoFileInput').click()">UPLOAD</button>
                     <input type="file" id="logoFileInput" class="upload-input" accept="image/*" onchange="handleLogoUpload(this)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Favicon -->
+        <div class="admin-card">
+            <h2>FAVICON</h2>
+            <div id="faviconCurrent" class="current-val">Loading...</div>
+            <div id="faviconPreview"></div>
+            <div class="form-group" style="margin-top:10px">
+                <label>Favicon Image URL or Upload (square image recommended)</label>
+                <div style="display:flex; gap:10px; align-items:center">
+                    <input type="text" id="faviconInput" placeholder="e.g. assets/images/favicon.png" style="flex:1">
+                    <span class="or-text">OR</span>
+                    <button class="upload-btn" onclick="document.getElementById('faviconFileInput').click()">UPLOAD</button>
+                    <input type="file" id="faviconFileInput" class="upload-input" accept="image/*" onchange="handleFaviconUpload(this)">
                 </div>
             </div>
         </div>
@@ -223,6 +240,7 @@
             startDeposit: 1000000,
             startWithdraw: 500000,
             logoUrl: 'assets/images/logo.png',
+            faviconUrl: 'assets/images/logo.png',
             headerCtaText: 'GET PREMIUM ID',
             copyrightText: '© 2011 - 2026 AlphaXchng. All Rights Reserved.',
             waButtons: [
@@ -331,6 +349,11 @@
             document.getElementById('logoCurrent').textContent = "CURRENT: " + db.logoUrl;
             document.getElementById('logoInput').value = db.logoUrl;
             document.getElementById('logoPreview').innerHTML = '<img class="preview-img" src="' + db.logoUrl + '" onerror="this.style.display=\'none\'">';
+
+            // Favicon
+            document.getElementById('faviconCurrent').textContent = "CURRENT: " + (db.faviconUrl || db.logoUrl);
+            document.getElementById('faviconInput').value = db.faviconUrl || db.logoUrl;
+            document.getElementById('faviconPreview').innerHTML = '<img class="preview-img" src="' + (db.faviconUrl || db.logoUrl) + '" style="width:32px; height:32px; object-fit:contain" onerror="this.style.display=\'none\'">';
 
             // Header CTA
             document.getElementById('ctaCurrent').textContent = "CURRENT: " + db.headerCtaText;
@@ -526,6 +549,20 @@
             input.value = '';
         }
 
+        function handleFaviconUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                openCropper(e.target.result, function(croppedData) {
+                    document.getElementById('faviconInput').value = croppedData;
+                    document.getElementById('faviconPreview').innerHTML = '<img class="preview-img" src="' + croppedData + '" style="width:32px; height:32px; object-fit:contain">';
+                });
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+
         function addFeature(icon, title, desc) {
             if (icon === undefined) icon = "";
             if (title === undefined) title = "";
@@ -546,6 +583,7 @@
                 startDeposit: parseInt(document.getElementById('startDepositInput').value) || 1000000,
                 startWithdraw: parseInt(document.getElementById('startWithdrawInput').value) || 500000,
                 logoUrl: document.getElementById('logoInput').value,
+                faviconUrl: document.getElementById('faviconInput').value,
                 headerCtaText: document.getElementById('ctaInput').value,
                 countryCode: document.getElementById('countryCodeInput').value,
                 copyrightText: document.getElementById('copyrightInput').value,

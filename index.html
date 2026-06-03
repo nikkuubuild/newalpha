@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlphaXchng - Premium Gaming Experience</title>
+    <link rel="icon" id="dynamicFavicon" type="image/png" href="assets/images/logo.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -317,6 +318,7 @@
             startDeposit: 1000000,
             startWithdraw: 500000,
             logoUrl: 'assets/images/logo.png',
+            faviconUrl: 'assets/images/logo.png',
             headerCtaText: 'GET PREMIUM ID',
             copyrightText: '© 2011 - 2026 AlphaXchng. All Rights Reserved.',
             waButtons: [
@@ -450,6 +452,10 @@
             // Logo
             document.getElementById('brandLogo').src = d.logoUrl;
             document.getElementById('footerLogo').src = d.logoUrl;
+
+            // Favicon
+            var fav = document.getElementById('dynamicFavicon');
+            if (fav && d.faviconUrl) fav.href = d.faviconUrl;
 
             // Header CTA
             document.getElementById('headerCtaText').textContent = d.headerCtaText;
