@@ -51,11 +51,11 @@
         <!-- Section 1: Header -->
         <header class="main-header">
             <div class="logo-container">
-                <img src="assets/images/logo.png" alt="AlphaXchng Logo" class="brand-logo">
+                <img src="assets/images/logo.png" alt="AlphaXchng Logo" class="brand-logo" id="brandLogo">
             </div>
             <div class="action-container">
-                <a href="https://wa.me/yournumber" class="btn-premium-id" target="_blank">
-                    👑 GET PREMIUM ID
+                <a href="#" class="btn-premium-id" id="headerCta" onclick="openWA();return false;">
+                    👑 <span id="headerCtaText">GET PREMIUM ID</span>
                 </a>
             </div>
         </header>
@@ -71,8 +71,6 @@
                 </div>
             </div>
         </section>
-
-
 
         <!-- Section 3: Square Media Slider -->
         <section class="banner-slider-section">
@@ -91,12 +89,8 @@
                         <video src="assets/videos/hero-cricket.mp4" autoplay loop muted playsinline class="hero-video"></video>
                     </div>
                 </div>
-                <!-- Carousel Dots from next.html -->
                 <div class="carousel-dots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+                    <!-- Dots injected via JS -->
                 </div>
             </div>
         </section>
@@ -107,33 +101,32 @@
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>
                     <h3>5% EVERY DEPOSIT</h3>
-                    <!-- <div class="gold-badge">PREMIUM OFFER</div> -->
+                    <p>INSTANT CREDIT</p>
                 </div>
-
                 <div class="feature-card">
                     <div class="feature-icon">🎁</div>
                     <h3>TOTAL 7% BONUS</h3>
-                    <!-- <div class="gold-badge">EXCLUSIVE</div> -->
+                    <p>NEW USERS</p>
                 </div>
-
                 <div class="feature-card">
                     <div class="feature-icon">💸</div>
                     <h3>2% CASH BACK</h3>
                     <p>EVERY WEEK</p>
                 </div>
-
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
                     <h3>INSTANT WITHDRAWAL</h3>
                     <p>IN 5 MINUTES</p>
                 </div>
-
                 <div class="feature-card">
                     <div class="feature-icon">🏏</div>
                     <h3>500+ GAMES</h3>
-                    <div class="games-icons">
-                        <span>🏏</span><span>⚽</span><span>🎾</span><span>🎰</span><span>🐴</span>
-                    </div>
+                    <p>CRICKET & MORE</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎰</div>
+                    <h3>LIVE CASINO</h3>
+                    <p>24/7 TABLES</p>
                 </div>
             </div>
         </section>
@@ -141,8 +134,7 @@
         <!-- Section 5: WhatsApp Routing (Direct Connect) -->
         <section class="whatsapp-router-section">
             <div class="router-card">
-                
-                <div class="btn-grid">
+                <div class="btn-grid" id="waBtnGrid">
                     <a class="wa-btn" href="#" onclick="openWA();return false;">
                         <div class="btn-icon-wrap" style="background:rgba(229, 184, 66, 0.15)">🎯</div>
                         <div class="btn-text">
@@ -183,37 +175,90 @@
                     </a>
                 </div>
             </div>
-           
         </section>
 
-        <!-- Section 4.6: Today's Live Activity (New) -->
+        <!-- Section 4.6: Today's Live Activity -->
         <section class="activity-section">
             <div class="showcase-header">
                 <div class="live-tag">
                     <span class="dot-pulse"></span>
                     LIVE ACTIVITY
                 </div>
-                <h2>TODAY'S <span>STATS</span></h2>
+                <h2>TODAY'S <span class="stat-value">STATS</span></h2>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-label">TOTAL DEPOSITS</span>
-                    <span class="stat-value gold-text" id="totalDeposit">₹ 10,00,000</span>
-                    <div class="stat-trend">↑ 12% today</div>
+            <!-- Online Users Bar -->
+            <div class="online-bar">
+                <span class="online-dot-live"></span>
+                <span id="onlineCount">1,247</span> users online now
+                <span class="online-separator">|</span>
+                <span id="todayTxn">3,892</span> transactions today
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid-pro">
+                <div class="stat-card-pro stat-deposit">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-circle dep-circle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v20m0 0l-7-7m7 7l7-7" stroke="#25d366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <span class="stat-label-pro">DEPOSITS</span>
+                    </div>
+                    <div class="stat-amount-pro" id="totalDeposit">₹ 10,00,000</div>
+                    <div class="stat-bar-wrap">
+                        <div class="stat-bar-fill dep-bar" id="depBar" style="width:72%"></div>
+                    </div>
+                    <div class="stat-footer-pro">
+                        <span class="stat-trend-pro trend-up" id="depTrend">+12.4% vs yesterday</span>
+                        <span class="stat-time-pro" id="depLastTime">2s ago</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">TOTAL WITHDRAWALS</span>
-                    <span class="stat-value" id="totalWithdraw">₹ 5,00,000</span>
-                    <div class="stat-trend" style="color: #25d366">FAST TRACK</div>
+                <div class="stat-card-pro stat-withdraw">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-circle wit-circle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22V2m0 0l-7 7m7-7l7 7" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <span class="stat-label-pro">WITHDRAWALS</span>
+                    </div>
+                    <div class="stat-amount-pro" id="totalWithdraw">₹ 5,00,000</div>
+                    <div class="stat-bar-wrap">
+                        <div class="stat-bar-fill wit-bar" id="witBar" style="width:58%"></div>
+                    </div>
+                    <div class="stat-footer-pro">
+                        <span class="stat-trend-pro trend-up" style="color:#25d366" id="witTrend">Avg 3 min payout</span>
+                        <span class="stat-time-pro" id="witLastTime">5s ago</span>
+                    </div>
                 </div>
             </div>
 
+            <!-- Mini Stats Row -->
+            <div class="mini-stats-row">
+                <div class="mini-stat">
+                    <span class="mini-stat-val" id="successRate">99.8%</span>
+                    <span class="mini-stat-label">Success Rate</span>
+                </div>
+                <div class="mini-stat-divider"></div>
+                <div class="mini-stat">
+                    <span class="mini-stat-val" id="avgPayoutTime">2m 48s</span>
+                    <span class="mini-stat-label">Avg Payout</span>
+                </div>
+                <div class="mini-stat-divider"></div>
+                <div class="mini-stat">
+                    <span class="mini-stat-val" id="activeUsers">4,821</span>
+                    <span class="mini-stat-label">Active Today</span>
+                </div>
+            </div>
+
+            <!-- Activity Feed Header -->
+            <div class="feed-header">
+                <span class="feed-header-title">RECENT TRANSACTIONS</span>
+                <span class="feed-header-live"><span class="dot-pulse-sm"></span> LIVE</span>
+            </div>
+
+            <!-- Activity Feed -->
             <div class="activity-feed-container">
                 <div class="feed-overlay-top"></div>
-                <div class="activity-feed" id="activityFeed">
-                    <!-- Dynamic feed items will be injected here -->
-                </div>
+                <div class="activity-feed" id="activityFeed"></div>
                 <div class="feed-overlay-bottom"></div>
             </div>
         </section>
@@ -223,283 +268,467 @@
             <div class="modal">
                 <div class="modal-icon">📲</div>
                 <div class="modal-title" id="modalTitle">Did WhatsApp open?</div>
-                <div class="modal-sub" id="modalSub">If WhatsApp didn't open or the number showed an error, tap the button below — we'll instantly connect you to another agent.</div>
+                <div class="modal-sub" id="modalSub">If WhatsApp didn't open or number showed error...</div>
                 <div class="modal-actions" id="modalActions">
-                    <button class="btn-yes" onclick="closeModal()">✅ Yes, WhatsApp opened fine</button>
-                    <button class="btn-no" onclick="tryNext()">
-                        ❌ Number not working / didn't open
-                        <small>Tap here → we'll switch you to another agent right away</small>
-                    </button>
+                    <button class="btn-yes" onclick="closeModal()">✅ Yes, Opened Fine</button>
+                    <button class="btn-no" onclick="tryNext()">❌ Not working<small>Tap here to switch agent</small></button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Section 6: Professional Footer -->
         <footer class="main-footer">
             <div class="footer-top">
-                <img src="assets/images/logo.png" alt="AlphaXchng Logo" class="footer-logo">
+                <img src="assets/images/logo.png" alt="AlphaXchng Logo" class="footer-logo" id="footerLogo">
                 <div class="caution-box">
                     <div class="caution-header">
                         <span class="caution-icon">⚠️</span>
                         <h3>RESPONSIBLE GAMING</h3>
                     </div>
                     <div class="caution-content">
-                        <p>This platform is for users <strong>18+ years only</strong>. Online gaming involves financial risk and may be addictive. Please play responsibly and at your own risk. AlphaXchng promotes fair play and user safety above all.</p>
+                        <p>This platform is for users <strong>18+ years only</strong>. Online gaming involves financial risk and may be addictive. Please play responsibly and at your own risk.</p>
                     </div>
                 </div>
             </div>
-
             <div class="footer-actions">
-                <a href="https://wa.me/yournumber" class="btn-emergency" onclick="openWA();return false;">
+                <a href="#" class="btn-emergency" onclick="openWA();return false;">
                     <span class="btn-pulse"></span>
                     🆘 EMERGENCY SUPPORT
                 </a>
             </div>
-
             <div class="footer-bottom">
-                <div class="copyright">
-                    © 2011 - 2026 AlphaXchng. All Rights Reserved.
-                </div>
-                <div class="footer-links">
-                    <span>Privacy Policy</span> • <span>Terms of Service</span>
-                </div>
+                <div class="copyright" id="copyrightText">© 2011 - 2026 AlphaXchng. All Rights Reserved.</div>
+                <div class="footer-links"><span>Privacy Policy</span> • <span>Terms of Service</span></div>
             </div>
         </footer>
     </div>
 
+    <!-- Visual Editor UI (Canva Style) -->
+    <div id="editorToolbar" class="editor-toolbar">
+        <div class="editor-brand">ALPHA<span>CMS</span></div>
+        <div class="editor-status" id="saveStatus">● DRAFT MODE (IN-PLACE EDITING)</div>
+        <div class="editor-actions">
+            <button onclick="saveVisualChanges()" class="btn-visual-save">PUBLISH CHANGES</button>
+            <button onclick="exitEditor()" class="btn-visual-exit">EXIT</button>
+        </div>
+    </div>
+    <div id="adminLoginFab" class="admin-fab" onclick="showAdminLogin()">🔐</div>
+
     <script>
-        // ─── CONFIG: edit numbers here only ───────────────────────────────
+        // ─── SHARED CMS DATA (localStorage-based, syncs with admin panel) ───
+        var CMS_KEY = '_alphaCmsData';
+        var DEFAULT_DATA = {
+            marqueeText: "24 HOUR SERVICE | 24 HOUR WITHDRAWAL | 24 HOUR REFILL 🔥 24/7 INSTANT WITHDRAWALS • 🏆 INDIA'S MOST TRUSTED GAMING PLATFORM • 🎰 EXCLUSIVE CASINO BONUSES • 👑 JOIN THE ELITE COMMUNITY NOW!",
+            contactNumbers: ['8651381149', '7542943418', '8235817872', '9472194303'],
+            emergencyNumber: '8651381149',
+            countryCode: '91',
+            startDeposit: 1000000,
+            startWithdraw: 500000,
+            logoUrl: 'assets/images/logo.png',
+            headerCtaText: 'GET PREMIUM ID',
+            copyrightText: '© 2011 - 2026 AlphaXchng. All Rights Reserved.',
+            waButtons: [
+                { icon: '🎯', title: 'GET ID 1', desc: 'Primary support line' },
+                { icon: '⚡', title: 'GET ID 2', desc: 'Fast track service' },
+                { icon: '🔄', title: 'GET ID 3', desc: 'Available agents' }
+            ],
+            sliderAssets: [
+                { type: 'image', url: 'assets/images/banner-1.jpeg' },
+                { type: 'image', url: 'assets/images/withdrawal-2.jpg' },
+                { type: 'image', url: 'assets/images/withdrawal-3.webp' },
+                { type: 'video', url: 'assets/videos/hero-cricket.mp4' }
+            ],
+            features: [
+                { icon: '💰', title: '5% EVERY DEPOSIT', desc: 'INSTANT CREDIT' },
+                { icon: '🎁', title: 'TOTAL 7% BONUS', desc: 'NEW USERS' },
+                { icon: '💸', title: '2% CASH BACK', desc: 'EVERY WEEK' },
+                { icon: '⚡', title: 'INSTANT WITHDRAWAL', desc: 'IN 5 MINUTES' },
+                { icon: '🏏', title: '500+ GAMES', desc: 'CRICKET & MORE' },
+                { icon: '🎰', title: 'LIVE CASINO', desc: '24/7 TABLES' }
+            ]
+        };
+
+        function getCmsData() {
+            try {
+                var stored = localStorage.getItem(CMS_KEY);
+                if (stored) {
+                    var parsed = JSON.parse(stored);
+                    return Object.assign({}, DEFAULT_DATA, parsed);
+                }
+            } catch(e) {}
+            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+
+        function saveCmsData(data) {
+            localStorage.setItem(CMS_KEY, JSON.stringify(data));
+        }
+
+        // ─── GLOBAL STATE ───
         var NUMBERS = ['8651381149', '7542943418', '8235817872', '9472194303'];
-        var COUNTRY  = '91'; // India country code
-        // ──────────────────────────────────────────────────────────────────
+        var COUNTRY = '91';
+        var dep = 1000000;
+        var wit = 500000;
 
-        // ── Cookie & Persistence helpers ──
-        function save(k, v) {
-            try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+        // ─── VISUAL EDITOR LOGIC (CANVA STYLE) ───
+        var isAdmin = false;
+        function showAdminLogin() {
+            var p = prompt("Enter Admin Password:");
+            if (p === 'admin123') enableEditorMode(); else alert("Unauthorized");
         }
-        function load(k) {
-            try { var l = localStorage.getItem(k); return l ? JSON.parse(l) : null; } catch(e) { return null; }
+        function enableEditorMode() {
+            isAdmin = true; document.body.classList.add('admin-mode-active');
+            document.getElementById('editorToolbar').style.display = 'flex';
+            document.getElementById('adminLoginFab').style.display = 'none';
+            var texts = document.querySelectorAll('.marquee-text, .btn-title, .btn-desc, .feature-card h3, .feature-card p, .stat-label, .stat-value, .copyright, .btn-emergency, #headerCtaText');
+            texts.forEach(function(el) {
+                el.contentEditable = "true"; el.classList.add('cms-editable-text');
+                if (el.tagName === 'A' || el.closest('a')) el.onclick = function(e) { if(isAdmin) e.preventDefault(); };
+            });
+            var media = document.querySelectorAll('.brand-logo, .footer-logo, .banner-slide img, .banner-slide video');
+            media.forEach(function(el) {
+                el.classList.add('cms-editable-media');
+                el.onclick = function(e) { if (!isAdmin) return; e.preventDefault(); var n = prompt("Enter new Source URL:", el.src || el.getAttribute('src')); if (n) el.src = n; };
+            });
         }
+        function saveVisualChanges() {
+            var b = document.querySelector('.btn-visual-save'); var s = document.getElementById('saveStatus');
+            b.textContent = 'PUBLISHING...'; s.textContent = 'SAVING...';
+            var newData = {
+                marqueeText: document.querySelector('.marquee-text').textContent.trim(),
+                emergencyNumber: document.querySelector('.btn-emergency').href.split('/').pop().replace(COUNTRY, ''),
+                contactNumbers: NUMBERS,
+                countryCode: COUNTRY,
+                startDeposit: dep,
+                startWithdraw: wit,
+                logoUrl: document.getElementById('brandLogo').getAttribute('src'),
+                headerCtaText: document.getElementById('headerCtaText').textContent.trim(),
+                copyrightText: document.getElementById('copyrightText').textContent.trim(),
+                waButtons: Array.from(document.querySelectorAll('#waBtnGrid .wa-btn:not(.help-btn)')).map(function(btn) {
+                    return {
+                        icon: btn.querySelector('.btn-icon-wrap').textContent.trim(),
+                        title: btn.querySelector('.btn-title').textContent.trim(),
+                        desc: btn.querySelector('.btn-desc').textContent.trim()
+                    };
+                }),
+                sliderAssets: Array.from(document.querySelectorAll('.banner-slide img, .banner-slide video')).map(function(el) { return { type: el.tagName === 'VIDEO' ? 'video' : 'image', url: el.getAttribute('src') }; }),
+                features: Array.from(document.querySelectorAll('.feature-card')).map(function(c) { return { icon: c.querySelector('.feature-icon').textContent.trim(), title: c.querySelector('h3').textContent.trim(), desc: c.querySelector('p').textContent.trim() }; })
+            };
+            saveCmsData(newData);
+            b.textContent = 'PUBLISHED!'; s.textContent = 'UPDATED';
+            setTimeout(function() { b.textContent = 'PUBLISH CHANGES'; s.textContent = '● DRAFT MODE'; }, 3000);
+        }
+        function exitEditor() { if (confirm("Discard changes?")) location.reload(); }
 
+        // ─── DYNAMIC CONTENT LOADER (reads from localStorage) ───
+        function initDynamicContent() {
+            var d = getCmsData();
+
+            // Marquee
+            document.querySelectorAll('.marquee-text').forEach(function(el) { el.textContent = d.marqueeText; });
+
+            // Logo
+            document.getElementById('brandLogo').src = d.logoUrl;
+            document.getElementById('footerLogo').src = d.logoUrl;
+
+            // Header CTA
+            document.getElementById('headerCtaText').textContent = d.headerCtaText;
+
+            // Copyright
+            document.getElementById('copyrightText').textContent = d.copyrightText;
+
+            // Slider
+            var track = document.querySelector('.banner-slider-track'); var dots = document.querySelector('.carousel-dots');
+            if (track && dots && d.sliderAssets) {
+                track.innerHTML = ''; dots.innerHTML = '';
+                d.sliderAssets.forEach(function(a, i) {
+                    var s = document.createElement('div'); s.className = 'banner-slide';
+                    s.innerHTML = a.type === 'video' ? '<video src="' + a.url + '" autoplay loop muted playsinline class="hero-video"></video>' : '<img src="' + a.url + '" alt="Banner">';
+                    track.appendChild(s); var dot = document.createElement('span'); dot.className = i === 0 ? 'dot active' : 'dot'; dots.appendChild(dot);
+                });
+            }
+
+            // Features
+            var feat = document.getElementById('featuresCarousel');
+            if (feat && d.features) { feat.innerHTML = ''; d.features.forEach(function(f) {
+                var c = document.createElement('div'); c.className = 'feature-card';
+                c.innerHTML = '<div class="feature-icon">' + f.icon + '</div><h3>' + f.title + '</h3><p>' + f.desc + '</p>';
+                feat.appendChild(c);
+            });}
+
+            // WhatsApp Buttons
+            if (d.waButtons && d.waButtons.length > 0) {
+                var grid = document.getElementById('waBtnGrid');
+                var helpBtn = grid.querySelector('.help-btn');
+                var divider = grid.querySelector('.router-divider');
+                grid.innerHTML = '';
+                d.waButtons.forEach(function(btn) {
+                    var a = document.createElement('a');
+                    a.className = 'wa-btn'; a.href = '#'; a.onclick = function(e) { e.preventDefault(); openWA(); };
+                    a.innerHTML = '<div class="btn-icon-wrap" style="background:rgba(229, 184, 66, 0.15)">' + btn.icon + '</div><div class="btn-text"><span class="btn-title">' + btn.title + '</span><span class="btn-desc">' + btn.desc + '</span></div><span class="btn-arrow">›</span>';
+                    grid.appendChild(a);
+                });
+                if (divider) grid.appendChild(divider);
+                if (helpBtn) grid.appendChild(helpBtn);
+            }
+
+            // Contact Numbers
+            NUMBERS = d.contactNumbers;
+
+            // Country Code
+            COUNTRY = d.countryCode;
+
+            // Emergency Number
+            var emb = document.querySelector('.btn-emergency');
+            if (emb) emb.href = 'https://wa.me/' + d.countryCode + d.emergencyNumber;
+
+            // Live Stats starting values
+            dep = d.startDeposit;
+            wit = d.startWithdraw;
+            updateStatsDisplay();
+        }
+        initDynamicContent();
+
+        // ─── APP LOGIC ───
+        function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+        function load(k) { try { var l = localStorage.getItem(k); return l ? JSON.parse(l) : null; } catch(e) { return null; } }
         var activeIdx = loadActive();
-        function loadActive() {
-            var v = load('_waActive');
-            if (v !== null && v >= 0 && v < NUMBERS.length) return v;
-            var idx = Math.floor(Math.random() * NUMBERS.length);
-            save('_waActive', idx);
-            return idx;
-        }
-
-        function loadFailed() {
-            var v = load('_waFailed');
-            return Array.isArray(v) ? v : [];
-        }
-
-        function saveFailed(arr) {
-            save('_waFailed', arr);
-        }
-
-        function findNextIdx(startIdx, failedArr) {
-            for (var i = 0; i < NUMBERS.length; i++) {
-                var candidate = (startIdx + i) % NUMBERS.length;
-                if (failedArr.indexOf(candidate) === -1) return candidate;
-            }
-            return null;
-        }
-
-        var popupTimer = null;
-
+        function loadActive() { var v = load('_waActive'); if (v !== null && v >= 0 && v < NUMBERS.length) return v; var idx = Math.floor(Math.random() * NUMBERS.length); save('_waActive', idx); return idx; }
+        function loadFailed() { var v = load('_waFailed'); return Array.isArray(v) ? v : []; }
+        function saveFailed(arr) { save('_waFailed', arr); }
+        function findNextIdx(sIdx, fArr) { for (var i = 0; i < NUMBERS.length; i++) { var c = (sIdx + i) % NUMBERS.length; if (fArr.indexOf(c) === -1) return c; } return null; }
+        var pTimer = null;
         function openWA() {
-            var failed = loadFailed();
-            var idx = findNextIdx(activeIdx, failed);
-
-            if (idx === null) {
-                showExhausted();
-                return;
-            }
-
-            activeIdx = idx;
-            save('_waActive', activeIdx);
-
-            var url = 'https://wa.me/' + COUNTRY + NUMBERS[activeIdx];
-            window.open(url, '_blank');
-
-            if (popupTimer) clearTimeout(popupTimer);
-            popupTimer = setTimeout(showModal, 2500);
+            var f = loadFailed(); var i = findNextIdx(activeIdx, f);
+            if (i === null) { showExhausted(); return; }
+            activeIdx = i; save('_waActive', activeIdx);
+            window.open('https://wa.me/' + COUNTRY + NUMBERS[activeIdx], '_blank');
+            if (pTimer) clearTimeout(pTimer); pTimer = setTimeout(showModal, 2500);
         }
-
         function showModal() {
             document.getElementById('modalTitle').textContent = 'Did WhatsApp open?';
-            document.getElementById('modalSub').textContent = 'If WhatsApp didn\'t open or the number showed an error, tap below — we\'ll instantly connect you to another agent.';
-            document.getElementById('modalActions').innerHTML =
-                '<button class="btn-yes" onclick="closeModal()">✅ Yes, WhatsApp opened fine</button>' +
-                '<button class="btn-no" onclick="tryNext()">❌ Number not working / didn\'t open' +
-                '<small>Tap here → we\'ll switch you to another agent right away</small></button>';
             document.getElementById('overlay').classList.add('show');
         }
-
-        function closeModal() {
-            document.getElementById('overlay').classList.remove('show');
-        }
-
+        function closeModal() { document.getElementById('overlay').classList.remove('show'); }
         function tryNext() {
-            closeModal();
-            var failed = loadFailed();
-            if (failed.indexOf(activeIdx) === -1) {
-                failed.push(activeIdx);
-                saveFailed(failed);
-            }
+            closeModal(); var f = loadFailed(); if (f.indexOf(activeIdx) === -1) { f.push(activeIdx); saveFailed(f); }
+            var n = findNextIdx((activeIdx + 1) % NUMBERS.length, f); if (n === null) { showExhausted(); return; }
+            activeIdx = n; save('_waActive', activeIdx); window.open('https://wa.me/' + COUNTRY + NUMBERS[activeIdx], '_blank');
+            if (pTimer) clearTimeout(pTimer); pTimer = setTimeout(showModal, 2500);
+        }
+        function showExhausted() { document.getElementById('modalTitle').textContent = 'Agents Busy'; document.getElementById('overlay').classList.add('show'); }
+        document.getElementById('overlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-            var nextIdx = findNextIdx((activeIdx + 1) % NUMBERS.length, failed);
-            if (nextIdx === null) {
-                showExhausted();
-                return;
-            }
+        // ─── STATS & LIVE ACTIVITY ENGINE ───
+        var txnCount = 3892;
+        var onlineBase = 1247;
+        var depLastSec = 2;
+        var witLastSec = 5;
 
-            activeIdx = nextIdx;
-            save('_waActive', activeIdx);
-            window.open('https://wa.me/' + COUNTRY + NUMBERS[activeIdx], '_blank');
-            if (popupTimer) clearTimeout(popupTimer);
-            popupTimer = setTimeout(showModal, 2500);
+        function updateStatsDisplay() {
+            var dEl = document.getElementById('totalDeposit');
+            var wEl = document.getElementById('totalWithdraw');
+            if (dEl) dEl.textContent = '₹ ' + dep.toLocaleString('en-IN');
+            if (wEl) wEl.textContent = '₹ ' + wit.toLocaleString('en-IN');
         }
 
-        function showExhausted() {
-            document.getElementById('modalTitle').textContent = 'All agents unavailable';
-            document.getElementById('modalSub').textContent = '';
-            document.getElementById('modalActions').innerHTML =
-                '<p class="msg-exhausted">⚠️ All our agents are currently unavailable.<br>Please try again after some time.</p>' +
-                '<button class="btn-yes" onclick="closeModal()">Close</button>';
-            document.getElementById('overlay').classList.add('show');
+        function safeSet(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+        function safeStyle(id, prop, val) { var el = document.getElementById(id); if (el) el.style[prop] = val; }
+
+        // Animate number counting up smoothly
+        function animateCount(el, from, to, duration) {
+            if (!el) return;
+            var start = performance.now();
+            function step(now) {
+                var progress = Math.min((now - start) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                var current = Math.floor(from + (to - from) * eased);
+                el.textContent = '₹ ' + current.toLocaleString('en-IN');
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
         }
 
-        document.getElementById('overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        // Tick class for bounce effect
+        function tickBounce(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('tick');
+            setTimeout(function() { el.classList.remove('tick'); }, 200);
+        }
 
-        // Banner Slider Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.querySelector('.banner-slider-container');
-            const dots = document.querySelectorAll('.dot');
-            const slides = document.querySelectorAll('.banner-slide');
-            let currentIndex = 0;
+        function tickStats() {
+            var prevDep = dep;
+            var prevWit = wit;
+            dep += Math.floor(Math.random() * 2700) + 800;
+            wit += Math.floor(Math.random() * 1800) + 500;
 
-            function updateSlider(index) {
-                const scrollAmount = index * container.clientWidth;
-                container.scrollTo({
-                    left: scrollAmount,
-                    behavior: 'smooth'
-                });
-                
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
+            // Smooth count animation
+            animateCount(document.getElementById('totalDeposit'), prevDep, dep, 800);
+            animateCount(document.getElementById('totalWithdraw'), prevWit, wit, 800);
+            tickBounce('totalDeposit');
+            tickBounce('totalWithdraw');
+
+            var depPct = Math.min(95, 50 + (dep / 50000000) * 50);
+            var witPct = Math.min(90, 40 + (wit / 30000000) * 50);
+            safeStyle('depBar', 'width', depPct + '%');
+            safeStyle('witBar', 'width', witPct + '%');
+
+            safeSet('depLastTime', (Math.floor(Math.random() * 8) + 1) + 's ago');
+            safeSet('witLastTime', (Math.floor(Math.random() * 12) + 1) + 's ago');
+            safeSet('depTrend', '+' + (10 + Math.random() * 8).toFixed(1) + '% vs yesterday');
+
+            var mins = Math.floor(Math.random() * 3) + 1;
+            var secs = Math.floor(Math.random() * 50) + 10;
+            safeSet('witTrend', 'Avg ' + mins + 'm ' + secs + 's payout');
+        }
+
+        function tickOnline() {
+            var drift = Math.floor(Math.random() * 40) - 15;
+            onlineBase = Math.max(900, Math.min(2200, onlineBase + drift));
+            safeSet('onlineCount', onlineBase.toLocaleString('en-IN'));
+
+            txnCount += Math.floor(Math.random() * 5) + 1;
+            safeSet('todayTxn', txnCount.toLocaleString('en-IN'));
+
+            safeSet('activeUsers', (4000 + Math.floor(Math.random() * 1500)).toLocaleString('en-IN'));
+
+            var m = Math.floor(Math.random() * 3) + 1;
+            var s = Math.floor(Math.random() * 50) + 8;
+            safeSet('avgPayoutTime', m + 'm ' + s + 's');
+
+            safeSet('successRate', (99.5 + Math.random() * 0.49).toFixed(1) + '%');
+        }
+
+        // ─── REALISTIC ACTIVITY FEED ───
+        var FIRST_NAMES = [
+            'Aarav','Vivaan','Aditya','Vihaan','Arjun','Sai','Reyansh','Ayaan','Krishna','Ishaan',
+            'Rahul','Amit','Deepak','Sanjay','Vikram','Rohit','Nikhil','Harsh','Gaurav','Kunal',
+            'Priya','Neha','Ananya','Diya','Riya','Pooja','Shreya','Kavya','Meera','Anjali',
+            'Suresh','Rajesh','Manish','Rakesh','Sunil','Manoj','Vijay','Ashok','Ravi','Karan',
+            'Mohd','Imran','Farhan','Zaid','Ayesha','Fatima','Nisha','Geeta','Sunita','Lakshmi'
+        ];
+        var METHODS = ['UPI','IMPS','UPI','UPI','NEFT','UPI','PhonePe','GPay','Paytm','UPI','IMPS','UPI'];
+        var DEP_AMOUNTS = [500,1000,2000,2500,3000,5000,7500,10000,15000,20000,25000,30000,50000,75000,100000];
+        var WIT_AMOUNTS = [1000,2000,3000,5000,8000,10000,15000,20000,25000,30000,40000,50000,75000,100000,150000];
+
+        function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function genTimeAgo() {
+            var s = Math.floor(Math.random() * 55) + 5;
+            return s < 60 ? s + 's ago' : Math.floor(s / 60) + 'm ago';
+        }
+
+        function genFeedItem() {
+            var isD = Math.random() > 0.38;
+            var name = randItem(FIRST_NAMES);
+            var initials = name.substring(0, 2).toUpperCase();
+            var starCount = Math.floor(Math.random() * 2) + 2;
+            var stars = '';
+            for (var s2 = 0; s2 < starCount; s2++) stars += '*';
+            var visibleLen = Math.min(3, Math.max(2, Math.ceil(name.length * 0.4)));
+            name = name.substring(0, visibleLen) + stars;
+            var mask = ' ' + Math.floor(Math.random() * 9000 + 1000);
+            var method = randItem(METHODS);
+            var amt = isD ? randItem(DEP_AMOUNTS) : randItem(WIT_AMOUNTS);
+            // Weight smaller amounts more heavily for realism
+            if (Math.random() > 0.7) amt = isD ? randItem(DEP_AMOUNTS.slice(0, 8)) : randItem(WIT_AMOUNTS.slice(0, 8));
+            var timeAgo = genTimeAgo();
+            var isVerified = Math.random() > 0.4;
+            var status = isD ? 'CREDITED' : (Math.random() > 0.15 ? 'PAID' : 'PROCESSING');
+            var statusClass = status === 'PROCESSING' ? 'st-proc' : 'st-done';
+
+            var item = document.createElement('div');
+            item.className = 'feed-item ' + (isD ? 'is-dep' : 'is-wit');
+            item.innerHTML =
+                '<div class="feed-avatar ' + (isD ? 'av-dep' : 'av-wit') + '">' +
+                    initials +
+                    (isVerified ? '<span class="av-verified"></span>' : '') +
+                '</div>' +
+                '<div class="feed-info">' +
+                    '<div class="feed-user-row">' +
+                        '<span class="feed-user">' + name + mask + '</span>' +
+                        '<span class="feed-method">' + method + '</span>' +
+                    '</div>' +
+                    '<div class="feed-meta">' +
+                        '<span class="feed-action ' + (isD ? 'action-dep' : 'action-wit') + '">' + (isD ? 'DEPOSIT' : 'WITHDRAWAL') + '</span>' +
+                        '<span class="feed-time">' + timeAgo + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="feed-right">' +
+                    '<div class="feed-amt">' + (isD ? '+' : '-') + ' ₹' + amt.toLocaleString('en-IN') + '</div>' +
+                    '<div class="feed-status ' + statusClass + '">' + status + '</div>' +
+                '</div>';
+            return item;
+        }
+
+        // ─── GOLD PARTICLE SYSTEM ───
+        (function() {
+            var wrapper = document.querySelector('.app-wrapper');
+            if (!wrapper) return;
+            function spawnParticle() {
+                var p = document.createElement('div');
+                var size = Math.random() * 3 + 2;
+                var x = Math.random() * 100;
+                var dur = Math.random() * 6 + 5;
+                p.style.cssText = 'position:absolute;width:' + size + 'px;height:' + size + 'px;background:var(--accent-gold);border-radius:50%;left:' + x + '%;bottom:-10px;opacity:0;pointer-events:none;z-index:1;animation:particleRise ' + dur + 's ease-out forwards;';
+                wrapper.appendChild(p);
+                setTimeout(function() { p.remove(); }, dur * 1000);
+            }
+            // Add the keyframe
+            var style = document.createElement('style');
+            style.textContent = '@keyframes particleRise{0%{opacity:0;transform:translateY(0) scale(0)}10%{opacity:0.6;transform:translateY(-20px) scale(1)}80%{opacity:0.2}100%{opacity:0;transform:translateY(-' + (window.innerHeight * 0.7) + 'px) translateX(' + (Math.random() * 40 - 20) + 'px) scale(0)}}';
+            document.head.appendChild(style);
+            setInterval(spawnParticle, 3000);
+            setTimeout(spawnParticle, 500);
+            setTimeout(spawnParticle, 1500);
+        })();
+
+        // ─── BOOT EVERYTHING (script is at bottom of body, DOM is ready) ───
+        (function() {
+            // --- Slider ---
+            var container = document.querySelector('.banner-slider-container');
+            var cIdx = 0;
+            setInterval(function() { var s = document.querySelectorAll('.banner-slide'); if(s.length) { cIdx = (cIdx + 1) % s.length; container.scrollTo({ left: cIdx * container.clientWidth, behavior: 'smooth' }); } }, 3000);
+
+            // --- Features Carousel ---
+            var feat = document.getElementById('featuresCarousel');
+            var fIdx = 0;
+            setInterval(function() { var c = feat.children; if(!c.length) return; fIdx = (fIdx + 1) % c.length; feat.scrollTo({ left: fIdx * (c[0].offsetWidth + 12), behavior: 'smooth' }); }, 5000);
+
+            // --- Action Engine ---
+            var actions = ['action-cricket', 'action-football', 'action-dice', 'action-cards'];
+            function trig() {
+                var r = actions[Math.floor(Math.random() * actions.length)]; var c = document.getElementById(r);
+                if (c) { c.classList.add('active'); setTimeout(function() { c.classList.remove('active'); setTimeout(trig, 5000 + Math.random() * 5000); }, 4500); }
+            }
+            setTimeout(trig, 3000);
+
+            // --- Stats Ticker ---
+            tickStats();
+            tickOnline();
+            setInterval(tickStats, 4000);
+            setInterval(tickOnline, 6000);
+
+            // --- Activity Feed (pre-fill + live) ---
+            var activityFeed = document.getElementById('activityFeed');
+
+            // Pre-fill with initial items
+            for (var i = 0; i < 8; i++) {
+                activityFeed.appendChild(genFeedItem());
             }
 
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % slides.length;
-                updateSlider(currentIndex);
-            }, 3000);
-
-            container.addEventListener('scroll', () => {
-                const index = Math.round(container.scrollLeft / container.clientWidth);
-                if (index !== currentIndex) {
-                    currentIndex = index;
-                    dots.forEach((dot, i) => {
-                        dot.classList.toggle('active', i === index);
-                    });
-                }
-            }, { passive: true });
-
-            // Features Carousel Auto-slide (5s Delay)
-            const featuresCarousel = document.getElementById('featuresCarousel');
-            const featureCards = document.querySelectorAll('.feature-card');
-            let featureIndex = 0;
-
-            setInterval(() => {
-                featureIndex = (featureIndex + 1) % featureCards.length;
-                const cardWidth = featureCards[0].offsetWidth + 12; // card width + gap
-                featuresCarousel.scrollTo({
-                    left: featureIndex * cardWidth,
-                    behavior: 'smooth'
-                });
-            }, 5000);
-
-            // Randomized Gaming Action Engine Logic
-            const actions = ['action-cricket', 'action-football', 'action-dice', 'action-cards'];
-            
-            function triggerRandomAction() {
-                const randomId = actions[Math.floor(Math.random() * actions.length)];
-                const container = document.getElementById(randomId);
-                
-                container.classList.add('active');
-                
-                // Duration matches the longest CSS animation (approx 4s)
-                setTimeout(() => {
-                    container.classList.remove('active');
-                    // Schedule next action with a random delay (5-10 seconds)
-                    setTimeout(triggerRandomAction, 5000 + Math.random() * 5000);
-                }, 4500);
+            // Add new items at random intervals (2-5 seconds)
+            function scheduleNext() {
+                var delay = 2000 + Math.random() * 3000;
+                setTimeout(function() {
+                    var newItem = genFeedItem();
+                    activityFeed.prepend(newItem);
+                    if (activityFeed.children.length > 15) activityFeed.lastElementChild.remove();
+                    scheduleNext();
+                }, delay);
             }
-
-            // Start the engine
-            setTimeout(triggerRandomAction, 3000);
-
-            // Today's Activity Live Logic
-            const activityFeed = document.getElementById('activityFeed');
-            const totalDepositEl = document.getElementById('totalDeposit');
-            const totalWithdrawEl = document.getElementById('totalWithdraw');
-            
-            let currentDeposit = 1000000;
-            let currentWithdraw = 500000;
-
-            const names = ['Arjun', 'Rahul', 'Deepak', 'Sanjay', 'Amit', 'Priya', 'Neha', 'Vikram', 'Anil', 'Sumit', 'Karan', 'Rajesh', 'Vivek', 'Pooja', 'Rohan'];
-            
-            function formatINR(amount) {
-                return '₹ ' + amount.toLocaleString('en-IN');
-            }
-
-            function updateStats() {
-                // Random increment between 800 - 3500 every 5 seconds (adds up to user's requested range per minute)
-                const depInc = Math.floor(Math.random() * 2700) + 800;
-                const witInc = Math.floor(Math.random() * 1800) + 500;
-                
-                currentDeposit += depInc;
-                currentWithdraw += witInc;
-                
-                totalDepositEl.textContent = formatINR(currentDeposit);
-                totalWithdrawEl.textContent = formatINR(currentWithdraw);
-            }
-
-            function addNewActivity() {
-                if (!activityFeed) return;
-                
-                const isDeposit = Math.random() > 0.4;
-                const randomName = names[Math.floor(Math.random() * names.length)];
-                const maskedName = randomName + '****' + Math.floor(Math.random() * 900 + 100);
-                const amount = isDeposit ? (Math.floor(Math.random() * 45000) + 5000) : (Math.floor(Math.random() * 120000) + 10000);
-                
-                const item = document.createElement('div');
-                item.className = 'feed-item';
-                item.innerHTML = `
-                    <div class="feed-user">${maskedName}</div>
-                    <div class="feed-action ${isDeposit ? 'action-dep' : 'action-wit'}">${isDeposit ? 'DEPOSIT APPROVED' : 'WITHDRAWAL DONE'}</div>
-                    <div class="feed-amt">${formatINR(amount)}</div>
-                `;
-                
-                activityFeed.prepend(item);
-                
-                // Keep only last 10 items for performance
-                if (activityFeed.children.length > 10) {
-                    activityFeed.lastElementChild.remove();
-                }
-            }
-
-            // Initialize feed with some items
-            for(let i=0; i<5; i++) addNewActivity();
-
-            setInterval(updateStats, 5000);
-            setInterval(addNewActivity, 3500);
-        });
+            scheduleNext();
+        })();
     </script>
 </body>
 </html>

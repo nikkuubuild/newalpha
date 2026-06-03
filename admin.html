@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaXchng - Admin Dashboard Pro</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { background: #080310; }
+        .admin-container { padding: 30px 15px; max-width: 800px; margin: 0 auto; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid rgba(229, 184, 66, 0.2); padding-bottom: 15px; }
+        .admin-card { background: #150826; border: 1px solid rgba(229, 184, 66, 0.15); border-radius: 20px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1, h2 { color: var(--accent-gold); font-weight: 800; }
+        h2 { font-size: 1.1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .current-val { font-size: 0.75rem; color: #25d366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px; margin-bottom: 15px; display: inline-block; font-weight: 700; word-break: break-all; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px; font-weight: 700; }
+        input, textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.4); color: #fff; font-size: 0.9rem; transition: border 0.3s; box-sizing: border-box; }
+        input:focus, textarea:focus { border-color: var(--accent-gold); outline: none; }
+        .asset-list, .feature-list, .contact-list, .wa-btn-list { display: flex; flex-direction: column; gap: 15px; }
+        .item-row { display: flex; gap: 12px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); align-items: center; }
+        .remove-btn { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.2); padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 800; flex-shrink: 0; }
+        .add-btn { background: rgba(229, 184, 66, 0.1); color: var(--accent-gold); border: 1px dashed var(--accent-gold); padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: 800; margin-top: 10px; }
+        .btn-master-save { position: sticky; bottom: 20px; z-index: 100; background: var(--gradient-gold); color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1rem; cursor: pointer; width: 100%; box-shadow: 0 10px 30px rgba(229, 184, 66, 0.3); }
+        .login-overlay { position: fixed; inset: 0; background: #080310; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .status-toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 12px; font-weight: 800; z-index: 1000; display: none; animation: slideInRight 0.3s; color: #fff; }
+        .preview-img { max-width: 120px; max-height: 80px; border-radius: 8px; margin-top: 8px; border: 1px solid rgba(229,184,66,0.2); }
+        .asset-preview { max-width: 100%; max-height: 120px; border-radius: 8px; margin-top: 10px; border: 1px solid rgba(229,184,66,0.2); display: block; }
+        .upload-btn { background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 0.75rem; flex-shrink: 0; white-space: nowrap; }
+        .upload-btn:hover { background: rgba(37, 211, 102, 0.25); }
+        .upload-input { display: none; }
+        .or-text { color: var(--text-dim); font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+        .section-divider { border: none; border-top: 1px solid rgba(229,184,66,0.1); margin: 10px 0 25px; }
+        .storage-warn { font-size: 0.65rem; color: #ff6b6b; margin-top: 5px; display: none; font-weight: 700; }
+        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="admin-card" style="max-width: 400px; width:100%">
+            <h1 style="text-align:center; margin-bottom:30px">ALPHA<span style="color:#fff">CMS</span></h1>
+            <input type="password" id="adminPass" placeholder="Enter Secure Password" style="text-align:center; font-size:1.1rem" onkeydown="if(event.key==='Enter')checkLogin()">
+            <button class="btn-master-save" onclick="checkLogin()" style="position:static; margin-top:20px">ENTER DASHBOARD</button>
+            <p id="loginErr" style="color:#ff6b6b; text-align:center; margin-top:15px; display:none; font-weight:700">Access Denied: Invalid Key</p>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="dashboard-header">
+            <h1>CONTROL <span style="color:#fff">CENTER</span></h1>
+            <div style="display:flex; gap:15px; align-items:center">
+                <a href="index.html" target="_blank" style="color:var(--accent-gold); font-size:0.75rem; font-weight:800; text-decoration:none; border:1px solid var(--accent-gold); padding:5px 12px; border-radius:20px">LIVE SITE</a>
+                <button onclick="location.reload()" style="background:none; border:1px solid #fff; color:#fff; padding:5px 15px; border-radius:20px; font-size:0.7rem; cursor:pointer">LOGOUT</button>
+            </div>
+        </div>
+
+        <!-- Logo -->
+        <div class="admin-card">
+            <h2>LOGO</h2>
+            <div id="logoCurrent" class="current-val">Loading...</div>
+            <div id="logoPreview"></div>
+            <div class="form-group" style="margin-top:10px">
+                <label>Logo Image URL or Upload</label>
+                <div style="display:flex; gap:10px; align-items:center">
+                    <input type="text" id="logoInput" placeholder="e.g. assets/images/logo.png" style="flex:1">
+                    <span class="or-text">OR</span>
+                    <button class="upload-btn" onclick="document.getElementById('logoFileInput').click()">UPLOAD</button>
+                    <input type="file" id="logoFileInput" class="upload-input" accept="image/*" onchange="handleLogoUpload(this)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Header CTA -->
+        <div class="admin-card">
+            <h2>Header Button Text</h2>
+            <div id="ctaCurrent" class="current-val">Loading...</div>
+            <div class="form-group">
+                <label>CTA Button Text (shown in header)</label>
+                <input type="text" id="ctaInput" placeholder="e.g. GET PREMIUM ID">
+            </div>
+        </div>
+
+        <!-- Marquee -->
+        <div class="admin-card">
+            <h2>Marquee Announcement</h2>
+            <div id="marqueeCurrent" class="current-val">Loading...</div>
+            <textarea id="marqueeInput" placeholder="Enter new announcement text..." rows="3"></textarea>
+        </div>
+
+        <!-- Live Stats -->
+        <div class="admin-card">
+            <h2>Activity Counters (Starting Values)</h2>
+            <div class="form-group">
+                <label>Daily Deposit Starting Value</label>
+                <div id="depositCurrent" class="current-val">Loading...</div>
+                <input type="number" id="startDepositInput">
+            </div>
+            <div class="form-group">
+                <label>Daily Withdrawal Starting Value</label>
+                <div id="withdrawCurrent" class="current-val">Loading...</div>
+                <input type="number" id="startWithdrawInput">
+            </div>
+        </div>
+
+        <!-- Country Code -->
+        <div class="admin-card">
+            <h2>WhatsApp Country Code</h2>
+            <div id="countryCurrent" class="current-val">Loading...</div>
+            <div class="form-group">
+                <label>Country Code (without +)</label>
+                <input type="text" id="countryCodeInput" placeholder="e.g. 91">
+            </div>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="admin-card">
+            <h2>Support Lines (Rotational Numbers)</h2>
+            <div class="contact-list" id="contactList"></div>
+            <button class="add-btn" onclick="addContact()">+ Add New Support Number</button>
+        </div>
+
+        <!-- Emergency -->
+        <div class="admin-card">
+            <h2>Emergency Support Number</h2>
+            <div id="emergencyCurrent" class="current-val">Loading...</div>
+            <input type="text" id="emergencyInput" placeholder="Enter specific emergency number">
+        </div>
+
+        <!-- WhatsApp Button Labels -->
+        <div class="admin-card">
+            <h2>WhatsApp Button Labels</h2>
+            <p style="color:var(--text-dim); font-size:0.75rem; margin-bottom:15px">These are the GET ID buttons shown on the website</p>
+            <div class="wa-btn-list" id="waBtnList"></div>
+            <button class="add-btn" onclick="addWaBtn()">+ Add WhatsApp Button</button>
+        </div>
+
+        <!-- Slider Assets -->
+        <div class="admin-card">
+            <h2>Hero Slider (Images/Videos)</h2>
+            <p class="storage-warn" id="storageWarn">Large images may exceed browser storage limits. Keep images under 500KB each for best results.</p>
+            <div class="asset-list" id="assetList"></div>
+            <div style="display:flex; gap:10px; margin-top:10px">
+                <button class="add-btn" onclick="addAsset()" style="flex:1; margin-top:0">+ Add via URL</button>
+                <button class="add-btn" onclick="document.getElementById('sliderFileInput').click()" style="flex:1; margin-top:0; border-color:#25d366; color:#25d366">+ Upload Image</button>
+                <input type="file" id="sliderFileInput" class="upload-input" accept="image/*,video/*" multiple onchange="handleSliderUpload(this)">
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="admin-card">
+            <h2>Features Carousel</h2>
+            <div class="feature-list" id="featureList"></div>
+            <button class="add-btn" onclick="addFeature()">+ Add Feature Card</button>
+        </div>
+
+        <!-- Copyright -->
+        <div class="admin-card">
+            <h2>Copyright Text</h2>
+            <div id="copyrightCurrent" class="current-val">Loading...</div>
+            <div class="form-group">
+                <label>Footer Copyright Text</label>
+                <input type="text" id="copyrightInput" placeholder="e.g. 2011 - 2026 AlphaXchng. All Rights Reserved.">
+            </div>
+        </div>
+
+        <button class="btn-master-save" onclick="saveAll()">DEPLOY CHANGES TO SITE</button>
+    </div>
+
+    <div id="statusToast" class="status-toast"></div>
+
+    <script>
+        // ─── SHARED CMS DATA (localStorage-based, syncs with frontend) ───
+        var CMS_KEY = '_alphaCmsData';
+        var DEFAULT_DATA = {
+            marqueeText: "24 HOUR SERVICE | 24 HOUR WITHDRAWAL | 24 HOUR REFILL 🔥 24/7 INSTANT WITHDRAWALS • 🏆 INDIA'S MOST TRUSTED GAMING PLATFORM • 🎰 EXCLUSIVE CASINO BONUSES • 👑 JOIN THE ELITE COMMUNITY NOW!",
+            contactNumbers: ['8651381149', '7542943418', '8235817872', '9472194303'],
+            emergencyNumber: '8651381149',
+            countryCode: '91',
+            startDeposit: 1000000,
+            startWithdraw: 500000,
+            logoUrl: 'assets/images/logo.png',
+            headerCtaText: 'GET PREMIUM ID',
+            copyrightText: '© 2011 - 2026 AlphaXchng. All Rights Reserved.',
+            waButtons: [
+                { icon: '🎯', title: 'GET ID 1', desc: 'Primary support line' },
+                { icon: '⚡', title: 'GET ID 2', desc: 'Fast track service' },
+                { icon: '🔄', title: 'GET ID 3', desc: 'Available agents' }
+            ],
+            sliderAssets: [
+                { type: 'image', url: 'assets/images/banner-1.jpeg' },
+                { type: 'image', url: 'assets/images/withdrawal-2.jpg' },
+                { type: 'image', url: 'assets/images/withdrawal-3.webp' },
+                { type: 'video', url: 'assets/videos/hero-cricket.mp4' }
+            ],
+            features: [
+                { icon: '💰', title: '5% EVERY DEPOSIT', desc: 'INSTANT CREDIT' },
+                { icon: '🎁', title: 'TOTAL 7% BONUS', desc: 'NEW USERS' },
+                { icon: '💸', title: '2% CASH BACK', desc: 'EVERY WEEK' },
+                { icon: '⚡', title: 'INSTANT WITHDRAWAL', desc: 'IN 5 MINUTES' },
+                { icon: '🏏', title: '500+ GAMES', desc: 'CRICKET & MORE' },
+                { icon: '🎰', title: 'LIVE CASINO', desc: '24/7 TABLES' }
+            ]
+        };
+
+        function getCmsData() {
+            try {
+                var stored = localStorage.getItem(CMS_KEY);
+                if (stored) {
+                    var parsed = JSON.parse(stored);
+                    // Merge with defaults so new fields are always present
+                    return Object.assign({}, DEFAULT_DATA, parsed);
+                }
+            } catch(e) {}
+            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+
+        function saveCmsData(data) {
+            localStorage.setItem(CMS_KEY, JSON.stringify(data));
+        }
+
+        let db = null;
+
+        function checkLogin() {
+            var input = document.getElementById('adminPass').value;
+            if (input === 'admin123') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                loadDashboard();
+            } else {
+                document.getElementById('loginErr').style.display = 'block';
+            }
+        }
+
+        function loadDashboard() {
+            db = getCmsData();
+
+            // Marquee
+            document.getElementById('marqueeCurrent').textContent = "CURRENT: " + db.marqueeText;
+            document.getElementById('marqueeInput').value = db.marqueeText;
+
+            // Emergency
+            document.getElementById('emergencyCurrent').textContent = "CURRENT: " + db.emergencyNumber;
+            document.getElementById('emergencyInput').value = db.emergencyNumber;
+
+            // Stats
+            document.getElementById('depositCurrent').textContent = "CURRENT: ₹ " + Number(db.startDeposit).toLocaleString('en-IN');
+            document.getElementById('startDepositInput').value = db.startDeposit;
+            document.getElementById('withdrawCurrent').textContent = "CURRENT: ₹ " + Number(db.startWithdraw).toLocaleString('en-IN');
+            document.getElementById('startWithdrawInput').value = db.startWithdraw;
+
+            // Logo
+            document.getElementById('logoCurrent').textContent = "CURRENT: " + db.logoUrl;
+            document.getElementById('logoInput').value = db.logoUrl;
+            document.getElementById('logoPreview').innerHTML = '<img class="preview-img" src="' + db.logoUrl + '" onerror="this.style.display=\'none\'">';
+
+            // Header CTA
+            document.getElementById('ctaCurrent').textContent = "CURRENT: " + db.headerCtaText;
+            document.getElementById('ctaInput').value = db.headerCtaText;
+
+            // Country Code
+            document.getElementById('countryCurrent').textContent = "CURRENT: +" + db.countryCode;
+            document.getElementById('countryCodeInput').value = db.countryCode;
+
+            // Copyright
+            document.getElementById('copyrightCurrent').textContent = "CURRENT: " + db.copyrightText;
+            document.getElementById('copyrightInput').value = db.copyrightText;
+
+            // Contact Numbers
+            document.getElementById('contactList').innerHTML = "";
+            db.contactNumbers.forEach(function(num) { addContact(num); });
+
+            // WhatsApp Buttons
+            document.getElementById('waBtnList').innerHTML = "";
+            db.waButtons.forEach(function(b) { addWaBtn(b.icon, b.title, b.desc); });
+
+            // Slider Assets
+            document.getElementById('assetList').innerHTML = "";
+            db.sliderAssets.forEach(function(a) { addAsset(a.url, a.type); });
+
+            // Features
+            document.getElementById('featureList').innerHTML = "";
+            db.features.forEach(function(f) { addFeature(f.icon, f.title, f.desc); });
+        }
+
+        function addContact(val) {
+            if (val === undefined) val = "";
+            var div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = '<input type="text" value="' + val + '" placeholder="Phone Number (without country code)"><button class="remove-btn" onclick="this.parentElement.remove()">x</button>';
+            document.getElementById('contactList').appendChild(div);
+        }
+
+        function addWaBtn(icon, title, desc) {
+            if (icon === undefined) icon = "";
+            if (title === undefined) title = "";
+            if (desc === undefined) desc = "";
+            var div = document.createElement('div');
+            div.className = 'item-row';
+            div.style.flexDirection = 'column'; div.style.alignItems = 'stretch';
+            div.innerHTML = '<div style="display:flex; gap:10px"><input type="text" value="' + icon + '" placeholder="Icon emoji" style="width:60px; text-align:center"><input type="text" value="' + title + '" placeholder="Button Title" style="flex:1"><button class="remove-btn" onclick="this.parentElement.parentElement.remove()">x</button></div><input type="text" value="' + desc + '" placeholder="Button Description" style="margin-top:8px">';
+            document.getElementById('waBtnList').appendChild(div);
+        }
+
+        function addAsset(url, type) {
+            if (url === undefined) url = "";
+            if (type === undefined) type = "image";
+            var div = document.createElement('div');
+            div.className = 'item-row';
+            div.style.flexDirection = 'column';
+            div.style.alignItems = 'stretch';
+
+            var isBase64 = url.indexOf('data:') === 0;
+            var shortLabel = isBase64 ? 'Uploaded image' : url;
+
+            var topRow = document.createElement('div');
+            topRow.style.cssText = 'display:flex; gap:10px; align-items:center';
+
+            var sel = document.createElement('select');
+            sel.style.width = '100px';
+            sel.innerHTML = '<option value="image" ' + (type==='image'?'selected':'') + '>IMAGE</option><option value="video" ' + (type==='video'?'selected':'') + '>VIDEO</option>';
+
+            var inp = document.createElement('input');
+            inp.type = 'text';
+            inp.value = url;
+            inp.placeholder = 'Asset URL';
+            inp.style.flex = '1';
+            if (isBase64) {
+                inp.style.display = 'none';
+            }
+
+            var labelSpan = document.createElement('span');
+            labelSpan.style.cssText = 'flex:1; color:#25d366; font-size:0.75rem; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap';
+            labelSpan.textContent = isBase64 ? 'Uploaded file' : '';
+            if (!isBase64) labelSpan.style.display = 'none';
+
+            var fileInp = document.createElement('input');
+            fileInp.type = 'file';
+            fileInp.accept = 'image/*,video/*';
+            fileInp.className = 'upload-input';
+            fileInp.onchange = function() {
+                handleAssetFileChange(fileInp, inp, labelSpan, sel, previewEl);
+            };
+
+            var uploadBtn = document.createElement('button');
+            uploadBtn.className = 'upload-btn';
+            uploadBtn.textContent = 'UPLOAD';
+            uploadBtn.onclick = function() { fileInp.click(); };
+
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = 'x';
+            removeBtn.onclick = function() { div.remove(); };
+
+            topRow.appendChild(sel);
+            topRow.appendChild(inp);
+            topRow.appendChild(labelSpan);
+            topRow.appendChild(fileInp);
+            topRow.appendChild(uploadBtn);
+            topRow.appendChild(removeBtn);
+            div.appendChild(topRow);
+
+            // Preview
+            var previewEl = document.createElement('div');
+            if (url && type === 'image') {
+                previewEl.innerHTML = '<img src="' + url + '" class="asset-preview" onerror="this.style.display=\'none\'">';
+            }
+            div.appendChild(previewEl);
+
+            document.getElementById('assetList').appendChild(div);
+        }
+
+        function handleAssetFileChange(fileInp, urlInp, labelSpan, sel, previewEl) {
+            var file = fileInp.files[0];
+            if (!file) return;
+            var isVideo = file.type.indexOf('video') === 0;
+            sel.value = isVideo ? 'video' : 'image';
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                urlInp.value = e.target.result;
+                urlInp.style.display = 'none';
+                labelSpan.style.display = '';
+                labelSpan.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + 'KB)';
+
+                if (!isVideo) {
+                    previewEl.innerHTML = '<img src="' + e.target.result + '" class="asset-preview">';
+                } else {
+                    previewEl.innerHTML = '<video src="' + e.target.result + '" class="asset-preview" muted autoplay loop style="max-height:80px"></video>';
+                }
+
+                if (file.size > 512000) {
+                    document.getElementById('storageWarn').style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSliderUpload(input) {
+            var files = input.files;
+            for (var i = 0; i < files.length; i++) {
+                (function(file) {
+                    var isVideo = file.type.indexOf('video') === 0;
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        addAsset(e.target.result, isVideo ? 'video' : 'image');
+                        if (file.size > 512000) {
+                            document.getElementById('storageWarn').style.display = 'block';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                })(files[i]);
+            }
+            input.value = '';
+        }
+
+        function handleLogoUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoInput').value = e.target.result;
+                document.getElementById('logoPreview').innerHTML = '<img class="preview-img" src="' + e.target.result + '">';
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+
+        function addFeature(icon, title, desc) {
+            if (icon === undefined) icon = "";
+            if (title === undefined) title = "";
+            if (desc === undefined) desc = "";
+            var div = document.createElement('div');
+            div.className = 'item-row';
+            div.style.flexDirection = 'column'; div.style.alignItems = 'stretch';
+            div.innerHTML = '<div style="display:flex; gap:10px"><input type="text" value="' + icon + '" placeholder="Icon" style="width:60px; text-align:center"><input type="text" value="' + title + '" placeholder="Title" style="flex:1"><button class="remove-btn" onclick="this.parentElement.parentElement.remove()">x</button></div><input type="text" value="' + desc + '" placeholder="Description" style="margin-top:8px">';
+            document.getElementById('featureList').appendChild(div);
+        }
+
+        function saveAll() {
+            var toast = document.getElementById('statusToast');
+            var newData = {
+                marqueeText: document.getElementById('marqueeInput').value,
+                emergencyNumber: document.getElementById('emergencyInput').value,
+                startDeposit: parseInt(document.getElementById('startDepositInput').value) || 1000000,
+                startWithdraw: parseInt(document.getElementById('startWithdrawInput').value) || 500000,
+                logoUrl: document.getElementById('logoInput').value,
+                headerCtaText: document.getElementById('ctaInput').value,
+                countryCode: document.getElementById('countryCodeInput').value,
+                copyrightText: document.getElementById('copyrightInput').value,
+                contactNumbers: Array.from(document.querySelectorAll('#contactList input')).map(function(i) { return i.value; }).filter(function(v) { return v.trim(); }),
+                waButtons: Array.from(document.querySelectorAll('#waBtnList .item-row')).map(function(row) {
+                    var inputs = row.querySelectorAll('input');
+                    return { icon: inputs[0].value, title: inputs[1].value, desc: inputs[2].value };
+                }),
+                sliderAssets: Array.from(document.querySelectorAll('#assetList .item-row')).map(function(row) {
+                    return { type: row.querySelector('select').value, url: row.querySelector('input[type="text"]').value };
+                }),
+                features: Array.from(document.querySelectorAll('#featureList .item-row')).map(function(row) {
+                    var inputs = row.querySelectorAll('input');
+                    return { icon: inputs[0].value, title: inputs[1].value, desc: inputs[2].value };
+                })
+            };
+            try {
+                saveCmsData(newData);
+                toast.style.background = '#25d366'; toast.textContent = 'SITE UPDATED! Refresh frontend to see changes.'; toast.style.display = 'block';
+                loadDashboard();
+            } catch(e) {
+                toast.style.background = '#ff6b6b'; toast.textContent = 'SAVE FAILED: Storage full. Reduce image sizes or use URLs instead.'; toast.style.display = 'block';
+            }
+            setTimeout(function() { toast.style.display = 'none'; }, 5000);
+        }
+    </script>
+</body>
+</html>
