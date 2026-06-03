@@ -161,6 +161,14 @@
             <input type="text" id="emergencyInput" placeholder="Enter specific emergency number">
         </div>
 
+        <!-- WhatsApp Floating Button Number -->
+        <div class="admin-card">
+            <h2>WhatsApp Floating Button Number</h2>
+            <p style="color:var(--text-dim); font-size:0.75rem; margin-bottom:15px">This number is used for the green WhatsApp icon on the bottom-right of the site</p>
+            <div id="whatsappFabCurrent" class="current-val">Loading...</div>
+            <input type="text" id="whatsappFabInput" placeholder="Enter WhatsApp number (without country code)">
+        </div>
+
         <!-- WhatsApp Button Labels -->
         <div class="admin-card">
             <h2>WhatsApp Button Labels</h2>
@@ -210,6 +218,7 @@
             marqueeText: "24 HOUR SERVICE | 24 HOUR WITHDRAWAL | 24 HOUR REFILL 🔥 24/7 INSTANT WITHDRAWALS • 🏆 INDIA'S MOST TRUSTED GAMING PLATFORM • 🎰 EXCLUSIVE CASINO BONUSES • 👑 JOIN THE ELITE COMMUNITY NOW!",
             contactNumbers: ['8651381149', '7542943418', '8235817872', '9472194303'],
             emergencyNumber: '8651381149',
+            whatsappFabNumber: '8651381149',
             countryCode: '91',
             startDeposit: 1000000,
             startWithdraw: 500000,
@@ -307,6 +316,10 @@
             // Emergency
             document.getElementById('emergencyCurrent').textContent = "CURRENT: " + db.emergencyNumber;
             document.getElementById('emergencyInput').value = db.emergencyNumber;
+
+            // WhatsApp Floating Button
+            document.getElementById('whatsappFabCurrent').textContent = "CURRENT: " + (db.whatsappFabNumber || db.emergencyNumber);
+            document.getElementById('whatsappFabInput').value = db.whatsappFabNumber || db.emergencyNumber;
 
             // Stats
             document.getElementById('depositCurrent').textContent = "CURRENT: ₹ " + Number(db.startDeposit).toLocaleString('en-IN');
@@ -529,6 +542,7 @@
             var newData = {
                 marqueeText: document.getElementById('marqueeInput').value,
                 emergencyNumber: document.getElementById('emergencyInput').value,
+                whatsappFabNumber: document.getElementById('whatsappFabInput').value,
                 startDeposit: parseInt(document.getElementById('startDepositInput').value) || 1000000,
                 startWithdraw: parseInt(document.getElementById('startWithdrawInput').value) || 500000,
                 logoUrl: document.getElementById('logoInput').value,
