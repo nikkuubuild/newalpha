@@ -148,11 +148,12 @@ body {
     padding: 0 15px; /* Maintain standard container padding */
 }
 
-.banner-slide img, 
+.banner-slide img,
 .banner-slide video {
-    width: 100%; /* Use total available width */
-    aspect-ratio: 1 / 1; /* Keep it perfectly square */
+    width: 100%;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
+    object-position: center;
     border-radius: 12px;
     border: 1px solid var(--accent-gold);
     box-shadow: 0 8px 25px rgba(0,0,0,0.7);

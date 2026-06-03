@@ -33,9 +33,43 @@
         .section-divider { border: none; border-top: 1px solid rgba(229,184,66,0.1); margin: 10px 0 25px; }
         .storage-warn { font-size: 0.65rem; color: #ff6b6b; margin-top: 5px; display: none; font-weight: 700; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Crop Modal */
+        .crop-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:2000; display:none; align-items:center; justify-content:center; padding:15px; flex-direction:column; }
+        .crop-overlay.active { display:flex; }
+        .crop-header { color:#fff; font-weight:800; font-size:1rem; margin-bottom:10px; text-align:center; }
+        .crop-canvas-wrap { position:relative; max-width:100%; max-height:60vh; overflow:hidden; border:2px solid var(--accent-gold); border-radius:12px; cursor:crosshair; touch-action:none; }
+        .crop-canvas-wrap canvas { display:block; max-width:100%; max-height:60vh; }
+        .crop-controls { display:flex; gap:10px; margin-top:15px; flex-wrap:wrap; justify-content:center; }
+        .crop-controls button { padding:12px 25px; border-radius:12px; font-weight:800; font-size:0.85rem; border:none; cursor:pointer; }
+        .crop-btn-confirm { background:var(--gradient-gold); color:#000; }
+        .crop-btn-cancel { background:rgba(255,107,107,0.2); color:#ff6b6b; border:1px solid rgba(255,107,107,0.3) !important; }
+        .crop-btn-reset { background:rgba(255,255,255,0.1); color:#fff; }
+        .crop-ratio-bar { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center; }
+        .crop-ratio-bar button { padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.7rem; border:1px solid rgba(229,184,66,0.3); background:rgba(229,184,66,0.1); color:var(--accent-gold); cursor:pointer; }
+        .crop-ratio-bar button.active { background:var(--accent-gold); color:#000; }
     </style>
 </head>
 <body>
+
+    <!-- Crop Modal -->
+    <div id="cropOverlay" class="crop-overlay">
+        <div class="crop-header">CROP IMAGE</div>
+        <div class="crop-ratio-bar" id="cropRatioBar">
+            <button onclick="setCropRatio(16,9)" class="active">16:9</button>
+            <button onclick="setCropRatio(1,1)">1:1</button>
+            <button onclick="setCropRatio(4,3)">4:3</button>
+            <button onclick="setCropRatio(0,0)">FREE</button>
+        </div>
+        <div class="crop-canvas-wrap" id="cropCanvasWrap">
+            <canvas id="cropCanvas"></canvas>
+        </div>
+        <div class="crop-controls">
+            <button class="crop-btn-confirm" onclick="confirmCrop()">CROP & USE</button>
+            <button class="crop-btn-reset" onclick="resetCrop()">RESET</button>
+            <button class="crop-btn-cancel" onclick="cancelCrop()">CANCEL</button>
+        </div>
+    </div>
 
     <div id="loginOverlay" class="login-overlay">
         <div class="admin-card" style="max-width: 400px; width:100%">
@@ -410,40 +444,59 @@
 
             var reader = new FileReader();
             reader.onload = function(e) {
-                urlInp.value = e.target.result;
-                urlInp.style.display = 'none';
-                labelSpan.style.display = '';
-                labelSpan.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + 'KB)';
+                var rawData = e.target.result;
 
-                if (!isVideo) {
-                    previewEl.innerHTML = '<img src="' + e.target.result + '" class="asset-preview">';
-                } else {
-                    previewEl.innerHTML = '<video src="' + e.target.result + '" class="asset-preview" muted autoplay loop style="max-height:80px"></video>';
+                function applyResult(dataUrl) {
+                    urlInp.value = dataUrl;
+                    urlInp.style.display = 'none';
+                    labelSpan.style.display = '';
+                    var kb = Math.round(dataUrl.length * 3/4 / 1024);
+                    labelSpan.textContent = file.name + ' (' + kb + 'KB)';
+                    previewEl.innerHTML = '<img src="' + dataUrl + '" class="asset-preview">';
+                    if (kb > 500) document.getElementById('storageWarn').style.display = 'block';
                 }
 
-                if (file.size > 512000) {
-                    document.getElementById('storageWarn').style.display = 'block';
+                if (!isVideo) {
+                    openCropper(rawData, function(croppedData) {
+                        applyResult(croppedData);
+                    });
+                } else {
+                    urlInp.value = rawData;
+                    urlInp.style.display = 'none';
+                    labelSpan.style.display = '';
+                    labelSpan.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + 'KB)';
+                    previewEl.innerHTML = '<video src="' + rawData + '" class="asset-preview" muted autoplay loop style="max-height:80px"></video>';
+                    if (file.size > 512000) document.getElementById('storageWarn').style.display = 'block';
                 }
             };
             reader.readAsDataURL(file);
         }
 
         function handleSliderUpload(input) {
-            var files = input.files;
-            for (var i = 0; i < files.length; i++) {
-                (function(file) {
-                    var isVideo = file.type.indexOf('video') === 0;
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        addAsset(e.target.result, isVideo ? 'video' : 'image');
-                        if (file.size > 512000) {
-                            document.getElementById('storageWarn').style.display = 'block';
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                })(files[i]);
-            }
+            var files = Array.from(input.files);
             input.value = '';
+            var idx = 0;
+
+            function processNext() {
+                if (idx >= files.length) return;
+                var file = files[idx]; idx++;
+                var isVideo = file.type.indexOf('video') === 0;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    if (!isVideo) {
+                        openCropper(e.target.result, function(croppedData) {
+                            addAsset(croppedData, 'image');
+                            processNext();
+                        });
+                    } else {
+                        addAsset(e.target.result, 'video');
+                        if (file.size > 512000) document.getElementById('storageWarn').style.display = 'block';
+                        processNext();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+            processNext();
         }
 
         function handleLogoUpload(input) {
@@ -451,8 +504,10 @@
             if (!file) return;
             var reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('logoInput').value = e.target.result;
-                document.getElementById('logoPreview').innerHTML = '<img class="preview-img" src="' + e.target.result + '">';
+                openCropper(e.target.result, function(croppedData) {
+                    document.getElementById('logoInput').value = croppedData;
+                    document.getElementById('logoPreview').innerHTML = '<img class="preview-img" src="' + croppedData + '">';
+                });
             };
             reader.readAsDataURL(file);
             input.value = '';
@@ -503,6 +558,161 @@
                 }
                 setTimeout(function() { toast.style.display = 'none'; }, 5000);
             });
+        }
+
+        // ─── IMAGE CROP TOOL ───
+        var cropState = {
+            img: null,
+            canvas: null,
+            ctx: null,
+            ratio: 16/9, // default
+            selection: null,
+            dragging: false,
+            startX: 0, startY: 0,
+            callback: null,
+            scale: 1
+        };
+
+        function openCropper(imgDataUrl, callback) {
+            cropState.callback = callback;
+            cropState.canvas = document.getElementById('cropCanvas');
+            cropState.ctx = cropState.canvas.getContext('2d');
+
+            var img = new Image();
+            img.onload = function() {
+                cropState.img = img;
+
+                // Scale image to fit modal (max 600px wide, 60vh tall)
+                var maxW = Math.min(window.innerWidth - 40, 600);
+                var maxH = window.innerHeight * 0.55;
+                var scale = Math.min(maxW / img.width, maxH / img.height, 1);
+                cropState.scale = scale;
+
+                cropState.canvas.width = Math.round(img.width * scale);
+                cropState.canvas.height = Math.round(img.height * scale);
+
+                resetCrop();
+                document.getElementById('cropOverlay').classList.add('active');
+            };
+            img.src = imgDataUrl;
+        }
+
+        function drawCrop() {
+            var c = cropState, ctx = c.ctx, cv = c.canvas;
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            ctx.drawImage(c.img, 0, 0, cv.width, cv.height);
+
+            if (!c.selection) return;
+            var s = c.selection;
+
+            // Dim outside
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(0, 0, cv.width, s.y);
+            ctx.fillRect(0, s.y, s.x, s.h);
+            ctx.fillRect(s.x + s.w, s.y, cv.width - s.x - s.w, s.h);
+            ctx.fillRect(0, s.y + s.h, cv.width, cv.height - s.y - s.h);
+
+            // Border
+            ctx.strokeStyle = '#e5b842';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(s.x, s.y, s.w, s.h);
+
+            // Corner handles
+            ctx.fillStyle = '#e5b842';
+            var hs = 6;
+            [[s.x,s.y],[s.x+s.w,s.y],[s.x,s.y+s.h],[s.x+s.w,s.y+s.h]].forEach(function(p) {
+                ctx.fillRect(p[0]-hs/2, p[1]-hs/2, hs, hs);
+            });
+
+            // Rule of thirds
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
+            for (var i = 1; i < 3; i++) {
+                ctx.beginPath(); ctx.moveTo(s.x + s.w*i/3, s.y); ctx.lineTo(s.x + s.w*i/3, s.y+s.h); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(s.x, s.y + s.h*i/3); ctx.lineTo(s.x+s.w, s.y + s.h*i/3); ctx.stroke();
+            }
+        }
+
+        function resetCrop() {
+            var cv = cropState.canvas;
+            if (cropState.ratio > 0) {
+                var w = cv.width, h = w / cropState.ratio;
+                if (h > cv.height) { h = cv.height; w = h * cropState.ratio; }
+                cropState.selection = { x: (cv.width-w)/2, y: (cv.height-h)/2, w: w, h: h };
+            } else {
+                cropState.selection = { x: 0, y: 0, w: cv.width, h: cv.height };
+            }
+            drawCrop();
+        }
+
+        function setCropRatio(w, h) {
+            cropState.ratio = (w === 0) ? 0 : w / h;
+            document.querySelectorAll('#cropRatioBar button').forEach(function(b) { b.classList.remove('active'); });
+            event.target.classList.add('active');
+            resetCrop();
+        }
+
+        function getCanvasPos(e) {
+            var rect = cropState.canvas.getBoundingClientRect();
+            var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        (function() {
+            var cv = document.getElementById('cropCanvas');
+
+            function onStart(e) {
+                e.preventDefault();
+                cropState.dragging = true;
+                var p = getCanvasPos(e);
+                cropState.startX = p.x;
+                cropState.startY = p.y;
+                cropState.dragStart = { x: cropState.selection.x, y: cropState.selection.y };
+            }
+            function onMove(e) {
+                if (!cropState.dragging || !cropState.selection) return;
+                e.preventDefault();
+                var p = getCanvasPos(e);
+                var dx = p.x - cropState.startX;
+                var dy = p.y - cropState.startY;
+                var s = cropState.selection;
+                var ds = cropState.dragStart;
+                s.x = Math.max(0, Math.min(cropState.canvas.width - s.w, ds.x + dx));
+                s.y = Math.max(0, Math.min(cropState.canvas.height - s.h, ds.y + dy));
+                drawCrop();
+            }
+            function onEnd() { cropState.dragging = false; }
+
+            cv.addEventListener('mousedown', onStart);
+            cv.addEventListener('mousemove', onMove);
+            cv.addEventListener('mouseup', onEnd);
+            cv.addEventListener('touchstart', onStart, {passive:false});
+            cv.addEventListener('touchmove', onMove, {passive:false});
+            cv.addEventListener('touchend', onEnd);
+        })();
+
+        function confirmCrop() {
+            var s = cropState.selection;
+            var sc = cropState.scale;
+            // Map selection back to original image coordinates
+            var sx = s.x / sc, sy = s.y / sc, sw = s.w / sc, sh = s.h / sc;
+
+            var out = document.createElement('canvas');
+            out.width = Math.round(sw);
+            out.height = Math.round(sh);
+            var octx = out.getContext('2d');
+            octx.drawImage(cropState.img, sx, sy, sw, sh, 0, 0, out.width, out.height);
+
+            var result = out.toDataURL('image/jpeg', 0.85);
+            document.getElementById('cropOverlay').classList.remove('active');
+
+            if (cropState.callback) cropState.callback(result);
+        }
+
+        function cancelCrop() {
+            document.getElementById('cropOverlay').classList.remove('active');
+            cropState.callback = null;
         }
     </script>
 </body>
